@@ -1,3 +1,5 @@
+using SmartBartender.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,6 +10,9 @@ builder.Services.AddSwaggerGen();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddSingleton<TelemetryMessageStore>();
+builder.Services.AddHostedService<IoTHubTelemetryReader>();
 
 var app = builder.Build();
 
