@@ -1,3 +1,4 @@
+using Microsoft.Azure.Devices;
 using SmartBartender.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,16 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<TelemetryMessageStore>();
 builder.Services.AddHostedService<IoTHubTelemetryReader>();
+builder.Services.AddSingleton<ServiceClient>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+
+    var connectionString = configuration["IoTHub:ServiceConnectionString"]
+        ?? throw new InvalidOperationException(
+            "Missing IoT Hub Service connection string.");
+
+    return ServiceClient.CreateFromConnectionString(connectionString);
+});
 
 var app = builder.Build();
 
