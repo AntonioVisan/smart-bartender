@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<TelemetryMessageStore>();
+builder.Services.AddSingleton<AzureAiAssistantService>();
 builder.Services.AddHostedService<IoTHubTelemetryReader>();
 builder.Services.AddSingleton<ServiceClient>(sp =>
 {
