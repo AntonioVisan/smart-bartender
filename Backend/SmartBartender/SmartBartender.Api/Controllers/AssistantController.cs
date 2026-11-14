@@ -27,6 +27,6 @@ public class AssistantController : ControllerBase
         var response = await _assistantService.SendMessageAsync(
             request.Message, cancellationToken);
 
-        return Ok(new { response });
+        return Ok(response);
     }
 }
