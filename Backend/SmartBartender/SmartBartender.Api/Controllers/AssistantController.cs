@@ -8,10 +8,14 @@ namespace SmartBartender.Api.Controllers;
 public class AssistantController : ControllerBase
 {
     private readonly AzureAiAssistantService _assistantService;
+    private readonly CocktailValidationService _validationService;
 
-    public AssistantController(AzureAiAssistantService assistantService)
+    public AssistantController(
+        AzureAiAssistantService assistantService,
+        CocktailValidationService validationService)
     {
         _assistantService = assistantService;
+        _validationService = validationService;
     }
 
     public class AssistantRequest
@@ -26,6 +30,8 @@ public class AssistantController : ControllerBase
     {
         var response = await _assistantService.SendMessageAsync(
             request.Message, cancellationToken);
+
+        _validationService.Validate(response);
 
         return Ok(response);
     }
