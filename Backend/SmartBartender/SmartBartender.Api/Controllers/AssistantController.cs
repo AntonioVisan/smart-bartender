@@ -34,46 +34,72 @@ public class AssistantController : ControllerBase
         [FromBody] AssistantRequest request,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest("Message cannot be empty.");
+        }
+
         var glassSizes = request.GlassSizesMl is { Count: > 0 }
                 ? request.GlassSizesMl : [350, 500];
 
-        var response = await _assistantService.SendMessageAsync(
-            request.Message, 
-            request.ConversationId,
-            cancellationToken);
+        AssistantResponseDto response;
 
+        try 
+        {
+            response = await _assistantService.SendMessageAsync(
+                request.Message,
+                request.ConversationId,
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return StatusCode(
+                StatusCodes.Status502BadGateway,
+                "The AI service is currently unavailable.");
+        }
         _validationService.Validate(response);
 
-        foreach(var cocktail in response.Cocktails)
+        try
         {
-            cocktail.Glasses.Clear();
-
-            List<int> ingredientsPercent = cocktail.Ingredients
-                .Select(i => i.Percent)
-                .ToList();
-
-            Dictionary<int, int[]> cocktailVolumes = _calculationService
-                .CalculateCocktailVolumes(glassSizes, 
-                ingredientsPercent);
-
-            foreach(var entry in cocktailVolumes)
+            foreach (var cocktail in response.Cocktails)
             {
-                var glass = new GlassDto
-                {
-                    GlassSizeMl = entry.Key
-                };
+                cocktail.Glasses.Clear();
 
-                for(int i = 0; i < entry.Value.Length; i++)
+                List<int> ingredientsPercent = cocktail.Ingredients
+                    .Select(i => i.Percent)
+                    .ToList();
+
+                Dictionary<int, int[]> cocktailVolumes = _calculationService
+                    .CalculateCocktailVolumes(glassSizes,
+                    ingredientsPercent);
+
+                foreach (var entry in cocktailVolumes)
                 {
-                    glass.Ingredients.Add(new IngredientVolumeDto
+                    var glass = new GlassDto
                     {
-                        Name = cocktail.Ingredients[i].Name,
-                        Ml = entry.Value[i]
-                    });
-                }
+                        GlassSizeMl = entry.Key
+                    };
 
-                cocktail.Glasses.Add(glass);
+                    for (int i = 0; i < entry.Value.Length; i++)
+                    {
+                        glass.Ingredients.Add(new IngredientVolumeDto
+                        {
+                            Name = cocktail.Ingredients[i].Name,
+                            Ml = entry.Value[i]
+                        });
+                    }
+
+                    cocktail.Glasses.Add(glass);
+                }
             }
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
         }
 
         return Ok(response);

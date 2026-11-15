@@ -61,9 +61,11 @@ public class AzureAiAssistantService
 
         try
         {
+            var cleanedResponse = CleanJson(responseText);
+
             var assistantResponse =
                 JsonSerializer.Deserialize<AssistantResponseDto>(
-                    responseText, JsonOptions);
+                    cleanedResponse, JsonOptions);
 
             if (assistantResponse == null)
             {
@@ -81,6 +83,24 @@ public class AzureAiAssistantService
                 "The assistant returned an invalid JSON response.",
                 ex);
         }
+    }
+
+    private static string CleanJson(string response)
+    {
+        response = response.Trim();
+
+        if (response.StartsWith("```"))
+        {
+            int first = response.IndexOf('\n');
+            int last = response.LastIndexOf("```");
+
+            if (first >= 0 && last > first)
+            {
+                response = response[(first + 1)..last];
+            }
+        }
+
+        return response.Trim();
     }
 
     private ProjectResponsesClient CreateAgentClient()
