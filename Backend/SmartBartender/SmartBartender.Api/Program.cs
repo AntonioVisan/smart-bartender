@@ -15,6 +15,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<TelemetryMessageStore>();
 builder.Services.AddSingleton<AzureAiAssistantService>();
 builder.Services.AddSingleton<CocktailValidationService>();
+builder.Services.AddScoped<CocktailCalculationService>();
 builder.Services.AddHostedService<IoTHubTelemetryReader>();
 builder.Services.AddSingleton<ServiceClient>(sp =>
 {
