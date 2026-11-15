@@ -22,10 +22,10 @@ public class CocktailCalculationService
                 nameof(percentages));
         }
 
-        if(percentages.Any(p => p < 0))
+        if(percentages.Any(p => p <= 0))
         {
             throw new ArgumentException(
-                "Ingredient percentages cannot be negative.",
+                "Ingredient percentages must be greater than zero.",
                 nameof(percentages));
         }
 
@@ -70,13 +70,6 @@ public class CocktailCalculationService
         {
             throw new ArgumentException(
                 "At least one glass size is required.",
-                nameof(glassSizesMl));
-        }
-
-        if (glassSizesMl.Count > 3)
-        {
-            throw new ArgumentException(
-                "A maximum of three glass sizes is allowed.",
                 nameof(glassSizesMl));
         }
 
