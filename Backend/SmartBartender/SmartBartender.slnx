@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="SmartBartender.Api/SmartBartender.Api.csproj" />
+  <Project Path="SmartBartender.Tests/SmartBartender.Tests.csproj" Id="d4a22b5e-87c9-4b8d-8473-ce378a09962d" />
 </Solution>
