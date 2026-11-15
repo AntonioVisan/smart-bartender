@@ -21,6 +21,7 @@ public class AssistantController : ControllerBase
     public class AssistantRequest
     {
         public string Message { get; set; } = "";
+        public string? ConversationId { get; set; }
     }
 
     [HttpPost("chat")]
@@ -29,7 +30,9 @@ public class AssistantController : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _assistantService.SendMessageAsync(
-            request.Message, cancellationToken);
+            request.Message, 
+            request.ConversationId,
+            cancellationToken);
 
         _validationService.Validate(response);
 
